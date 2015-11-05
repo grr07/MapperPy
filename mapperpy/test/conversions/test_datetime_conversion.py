@@ -1,16 +1,15 @@
 import unittest
+from datetime import datetime
+
 from assertpy import assert_that
 
 from mapperpy.test.common_test_classes import *
-
 from mapperpy import OneWayMapper, ObjectMapper
-from datetime import datetime
 
 __author__ = 'lgrech'
 
 
 class DateTimeConversionTest(unittest.TestCase):
-
     def test_map_from_datetime_it_target_type_not_known(self):
         # given
         mapper = OneWayMapper.for_target_class(TestClassSomePropertyEmptyInit2)
@@ -114,7 +113,6 @@ class DateTimeConversionTest(unittest.TestCase):
         assert_that(mapped_object.some_property_02).is_equal_to(test_datetime)
 
     def test_map_string_without_millis_to_datetime(self):
-
         # given
         mapper = OneWayMapper.for_target_prototype(TestClassSomePropertyEmptyInit2(some_property=datetime.now()))
 
@@ -128,7 +126,6 @@ class DateTimeConversionTest(unittest.TestCase):
         assert_that(mapped_object.some_property).is_equal_to(datetime(2015, 11, 2, 18, 14, 42, 0))
 
     def test_map_string_with_millis_to_datetime(self):
-
         # given
         mapper = OneWayMapper.for_target_prototype(TestClassSomePropertyEmptyInit2(some_property=datetime.now()))
 
@@ -140,3 +137,28 @@ class DateTimeConversionTest(unittest.TestCase):
         assert_that(mapped_object).is_instance_of(TestClassSomePropertyEmptyInit2)
         assert_that(mapped_object.some_property).is_instance_of(datetime)
         assert_that(mapped_object.some_property).is_equal_to(datetime(2015, 11, 2, 18, 14, 42, 123))
+
+    def test_map_millisecond_timestamp_to_datetime(self):
+        # given
+        mapper = OneWayMapper.for_target_prototype(TestClassSomePropertyEmptyInit2(some_property=datetime.now()))
+
+        # when
+        mapped_object = mapper.map(TestClassSomePropertyEmptyInit1(some_property=1446749497576))
+
+        # then
+        assert_that(mapped_object).is_instance_of(TestClassSomePropertyEmptyInit2)
+        assert_that(mapped_object.some_property).is_instance_of(datetime)
+        assert_that(mapped_object.some_property).is_equal_to(datetime(2015, 11, 5, 10, 51, 37, 576000))
+
+    def test_map_datetime_to_millisecond_timestamp(self):
+        # given
+        mapper = OneWayMapper.for_target_prototype(TestClassSomePropertyEmptyInit2(some_property=7133571))
+
+        # when
+        mapped_object = mapper.map(
+            TestClassSomePropertyEmptyInit1(some_property=datetime(2015, 11, 5, 10, 51, 37, 576000)))
+
+        # then
+        assert_that(mapped_object).is_instance_of(TestClassSomePropertyEmptyInit2)
+        assert_that(mapped_object.some_property).is_instance_of(int)
+        assert_that(mapped_object.some_property).is_equal_to(1446749497576)

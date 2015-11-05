@@ -1,6 +1,9 @@
 from datetime import datetime
+import time
 import inspect
+
 from enum import Enum
+
 from mapperpy.mapper_options import MapperOptions
 from mapperpy.exceptions import ConfigurationException
 
@@ -8,7 +11,6 @@ __author__ = 'lgrech'
 
 
 class OneWayMapper(object):
-
     def __init__(self, target_class, target_prototype_obj=None):
         self.__target_class = target_class
         self.__target_prototype_obj = self.__try_get_prototype(target_prototype_obj, self.__target_class)
@@ -60,7 +62,7 @@ class OneWayMapper(object):
 
         if mapper.target_class in [mpr.target_class for mpr in self.__nested_mappers[for_type]]:
             raise ConfigurationException("Nested mapping {}->{} already defined for this mapper".format(
-                    for_type.__name__, mapper.target_class.__name__))
+                for_type.__name__, mapper.target_class.__name__))
 
         self.__nested_mappers[for_type].add(mapper)
 
@@ -125,7 +127,7 @@ class OneWayMapper(object):
 
     def __try_apply_nested_mapper(self, attr_value, from_type, attr_name_from, to_type, attr_name_to):
 
-        error_message = "Ambiguous nested mapping for attribute {}->{}. Too many mappings defined for type {}".\
+        error_message = "Ambiguous nested mapping for attribute {}->{}. Too many mappings defined for type {}". \
             format(attr_name_from, attr_name_to, from_type.__name__)
 
         if len(self.__nested_mappers[from_type]) == 1:
@@ -152,6 +154,14 @@ class OneWayMapper(object):
             return cls.__get_conversion_from_datetime(attr_value)
         elif issubclass(from_type, basestring) and issubclass(to_type, datetime):
             return cls.__get_conversion_to_datetime(attr_value)
+        elif issubclass(from_type, int) and issubclass(to_type, datetime):
+            return datetime.fromtimestamp(attr_value / 1000.0)
+        elif issubclass(from_type, long) and issubclass(to_type, datetime):
+            return datetime.fromtimestamp(attr_value / 1000.0)
+        elif issubclass(from_type, datetime) and issubclass(to_type, int):
+            return int(time.mktime(attr_value.timetuple()) * 1e3 + attr_value.microsecond / 1e3)
+        elif issubclass(from_type, datetime) and issubclass(to_type, long):
+            return long(time.mktime(attr_value.timetuple()) * 1e3 + attr_value.microsecond / 1e3)
         return attr_value
 
     @classmethod
@@ -237,8 +247,8 @@ class OneWayMapper(object):
         if isinstance(obj, dict):
             return obj.keys()
 
-        attributes = inspect.getmembers(obj, lambda a: not(inspect.isroutine(a)))
-        return [attr[0] for attr in attributes if not(attr[0].startswith('__') and attr[0].endswith('__'))]
+        attributes = inspect.getmembers(obj, lambda a: not (inspect.isroutine(a)))
+        return [attr[0] for attr in attributes if not (attr[0].startswith('__') and attr[0].endswith('__'))]
 
     def __get_setting(self, mapper_option, default_val):
         if mapper_option.get_name() in self.__general_settings:
