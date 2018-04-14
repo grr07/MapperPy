@@ -1,6 +1,10 @@
+import sys
 import unittest
 from assertpy import assert_that
-from mock import Mock
+if sys.version_info > (3, 0):
+    from unittest.mock import Mock
+else:
+    from mock import Mock
 
 from mapperpy.attributes_util import AttributesCache
 from mapperpy.test.common_test_classes import *
@@ -38,7 +42,7 @@ class OneWayMapperTest(unittest.TestCase):
             mapper.map(TestClassSomeProperty1(some_property="some_value"))
 
         # then
-        assert_that(context.exception.message).contains("unknown")
+        assert_that(context.exception.args[0]).contains("unknown")
 
     def test_map_multiple_explicit_properties(self):
         # given
@@ -137,8 +141,8 @@ class OneWayMapperTest(unittest.TestCase):
             root_mapper.nested_mapper(object(), TestClassSomeProperty1)
 
         # then
-        assert_that(context.exception.message).contains(OneWayMapper.__name__)
-        assert_that(context.exception.message).contains("object")
+        assert_that(context.exception.args[0]).contains(OneWayMapper.__name__)
+        assert_that(context.exception.args[0]).contains("object")
 
     def test_nested_mapper_when_the_same_mapper_added_should_raise_exception(self):
         # given
@@ -154,8 +158,8 @@ class OneWayMapperTest(unittest.TestCase):
                 TestClassSomePropertyEmptyInit1)
 
         # then
-        assert_that(context.exception.message).contains(TestClassSomePropertyEmptyInit1.__name__)
-        assert_that(context.exception.message).contains(TestClassSomePropertyEmptyInit2.__name__)
+        assert_that(context.exception.args[0]).contains(TestClassSomePropertyEmptyInit1.__name__)
+        assert_that(context.exception.args[0]).contains(TestClassSomePropertyEmptyInit2.__name__)
 
     def test_map_with_nested_explicit_mapper(self):
         # given
@@ -201,8 +205,8 @@ class OneWayMapperTest(unittest.TestCase):
             root_mapper.map(TestClassSomeProperty1(some_property=TestClassSomePropertyEmptyInit1()))
 
         # then
-        assert_that(context.exception.message).contains("some_property")
-        assert_that(context.exception.message).contains("TestClassSomePropertyEmptyInit1")
+        assert_that(context.exception.args[0]).contains("some_property")
+        assert_that(context.exception.args[0]).contains("TestClassSomePropertyEmptyInit1")
 
     def test_map_explicit_when_ambiguous_nested_mapping_should_raise_exception(self):
         # given
@@ -218,9 +222,9 @@ class OneWayMapperTest(unittest.TestCase):
             root_mapper.map(TestClassSomeProperty1(some_property=TestClassSomePropertyEmptyInit1()))
 
         # then
-        assert_that(context.exception.message).contains("some_property")
-        assert_that(context.exception.message).contains("mapped_property")
-        assert_that(context.exception.message).contains("TestClassSomePropertyEmptyInit1")
+        assert_that(context.exception.args[0]).contains("some_property")
+        assert_that(context.exception.args[0]).contains("mapped_property")
+        assert_that(context.exception.args[0]).contains("TestClassSomePropertyEmptyInit1")
 
     def test_map_with_multiple_nested_mappings_when_no_matching_mapper_for_target_type_should_raise_exception(self):
         # given
@@ -237,9 +241,9 @@ class OneWayMapperTest(unittest.TestCase):
                 some_property=TestClassSomePropertyEmptyInit1(some_property_02="nested_value_02")))
 
         # then
-        assert_that(context.exception.message).contains("some_property")
-        assert_that(context.exception.message).contains("TestClassSomePropertyEmptyInit1")
-        assert_that(context.exception.message).contains("TestClassMappedPropertyEmptyInit")
+        assert_that(context.exception.args[0]).contains("some_property")
+        assert_that(context.exception.args[0]).contains("TestClassSomePropertyEmptyInit1")
+        assert_that(context.exception.args[0]).contains("TestClassMappedPropertyEmptyInit")
 
     def test_map_with_multiple_nested_mappings_for_one_attribute_when_target_type_known(self):
         # given
@@ -297,7 +301,7 @@ class OneWayMapperTest(unittest.TestCase):
             OneWayMapper.for_target_prototype(TestClassSomePropertyEmptyInit1()).target_initializers(
                 {"some_property_02": 7}
             )
-        assert_that(context.exception.message).contains("some_property_02")
+        assert_that(context.exception.args[0]).contains("some_property_02")
 
     def test_map_with_custom_target_initializers(self):
         # given
@@ -335,7 +339,7 @@ class OneWayMapperTest(unittest.TestCase):
             mapper_strict.map(TestEmptyClass1())
 
         # then
-        assert_that(context.exception.message).contains("non_existing_property")
+        assert_that(context.exception.args[0]).contains("non_existing_property")
 
     def test_map_attr_name_for_empty_classes_should_raise_exception(self):
         # given
@@ -346,7 +350,7 @@ class OneWayMapperTest(unittest.TestCase):
             mapper.map_attr_name("unmapped_property")
 
         # then
-        assert_that(context.exception.message).contains("unmapped_property")
+        assert_that(context.exception.args[0]).contains("unmapped_property")
 
     def test_map_attr_name_for_unmapped_explicit_property_should_raise_exception(self):
         # given
@@ -358,7 +362,7 @@ class OneWayMapperTest(unittest.TestCase):
             mapper.map_attr_name("unmapped_property")
 
         # then
-        assert_that(context.exception.message).contains("unmapped_property")
+        assert_that(context.exception.args[0]).contains("unmapped_property")
 
     def test_map_attr_name_for_opposite_way_should_raise_exception(self):
         # given
@@ -370,7 +374,7 @@ class OneWayMapperTest(unittest.TestCase):
             mapper.map_attr_name("mapped_property")
 
         # then
-        assert_that(context.exception.message).contains("mapped_property")
+        assert_that(context.exception.args[0]).contains("mapped_property")
 
     def test_map_attr_name_for_explicit_mapping(self):
         # given
@@ -394,7 +398,7 @@ class OneWayMapperTest(unittest.TestCase):
             mapper.map_attr_name("unmapped_property1")
 
         # then
-        assert_that(context.exception.message).contains("unmapped_property1")
+        assert_that(context.exception.args[0]).contains("unmapped_property1")
 
     def test_for_target_class_when_object_passed_should_raise_exception(self):
         # when
@@ -402,7 +406,7 @@ class OneWayMapperTest(unittest.TestCase):
             OneWayMapper.for_target_class(object())
 
         # then
-        assert_that(context.exception.message).contains("object")
+        assert_that(context.exception.args[0]).contains("object")
 
     def test_for_target_class(self):
         assert_that(OneWayMapper.for_target_class(object)).is_not_none()
@@ -413,7 +417,7 @@ class OneWayMapperTest(unittest.TestCase):
             OneWayMapper.for_target_prototype(object)
 
         # then
-        assert_that(context.exception.message).contains("object")
+        assert_that(context.exception.args[0]).contains("object")
 
     def test_for_target_prototype(self):
         assert_that(OneWayMapper.for_target_prototype(object())).is_not_none()
@@ -425,7 +429,7 @@ class OneWayMapperTest(unittest.TestCase):
             OneWayMapper.for_target_class(TestClassSomePropertyEmptyInit1).map_attr_value("unknown_attr", "some_value")
 
         # then
-        assert_that(context.exception.message).contains("unknown_attr")
+        assert_that(context.exception.args[0]).contains("unknown_attr")
 
     def test_map_attr_value_for_none_attr_name_should_raise_exception(self):
 
@@ -434,7 +438,7 @@ class OneWayMapperTest(unittest.TestCase):
             OneWayMapper.for_target_class(TestClassSomePropertyEmptyInit1).map_attr_value(None, "some_value")
 
         # then
-        assert_that(context.exception.message).contains("None")
+        assert_that(context.exception.args[0]).contains("None")
 
     def test_map_attr_value_for_none_value(self):
         # given

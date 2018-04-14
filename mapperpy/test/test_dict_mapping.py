@@ -221,8 +221,8 @@ class ObjectMapperDictMappingTest(unittest.TestCase):
             root_mapper.map(dict(some_property=TestClassSomePropertyEmptyInit1().__dict__))
 
         # then
-        assert_that(context.exception.message).contains("some_property")
-        assert_that(context.exception.message).contains("dict")
+        assert_that(context.exception.args[0]).contains("some_property")
+        assert_that(context.exception.args[0]).contains("dict")
 
     def test_map_explicit_when_ambiguous_nested_mapping_should_raise_exception(self):
         # given
@@ -237,9 +237,9 @@ class ObjectMapperDictMappingTest(unittest.TestCase):
             root_mapper.map(dict(some_property=dict()))
 
         # then
-        assert_that(context.exception.message).contains("some_property")
-        assert_that(context.exception.message).contains("mapped_property")
-        assert_that(context.exception.message).contains("dict")
+        assert_that(context.exception.args[0]).contains("some_property")
+        assert_that(context.exception.args[0]).contains("mapped_property")
+        assert_that(context.exception.args[0]).contains("dict")
 
     def test_map_with_multiple_nested_mappings_when_no_matching_mapper_for_target_type_should_raise_exception(self):
         # given
@@ -256,9 +256,9 @@ class ObjectMapperDictMappingTest(unittest.TestCase):
             root_mapper.map(dict(some_property=dict(some_property_02="nested_value_02")))
 
         # then
-        assert_that(context.exception.message).contains("some_property")
-        assert_that(context.exception.message).contains("dict")
-        assert_that(context.exception.message).contains("TestClassMappedPropertyEmptyInit")
+        assert_that(context.exception.args[0]).contains("some_property")
+        assert_that(context.exception.args[0]).contains("dict")
+        assert_that(context.exception.args[0]).contains("TestClassMappedPropertyEmptyInit")
 
     def test_map_with_multiple_nested_mappings_for_one_attribute_when_target_type_known(self):
         # given

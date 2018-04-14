@@ -12,7 +12,7 @@ class CustomValueConversionTest(unittest.TestCase):
             OneWayMapper.for_target_class(TestClassSomePropertyEmptyInit1).target_value_converters(
                 {"some_property_02": 7}
             )
-        assert_that(context.exception.message).contains("some_property_02")
+        assert_that(context.exception.args[0]).contains("some_property_02")
 
     def test_map_for_single_converter(self):
         # given
@@ -70,21 +70,21 @@ class CustomValueConversionTest(unittest.TestCase):
             ObjectMapper.from_class(TestClassSomePropertyEmptyInit1, TestClassSomePropertyEmptyInit2).value_converters(
                 {"some_property_02": lambda val: 7})
 
-        assert_that(context.exception.message).contains("some_property_02")
+        assert_that(context.exception.args[0]).contains("some_property_02")
 
     def test_object_mapper_value_converters_when_converter_not_in_2_element_tuple_should_raise_exception(self):
         with self.assertRaises(ValueError) as context:
             ObjectMapper.from_class(TestClassSomePropertyEmptyInit1, TestClassSomePropertyEmptyInit2).value_converters(
                 {"some_property_02": (lambda val: 7,)})
 
-        assert_that(context.exception.message).contains("some_property_02")
+        assert_that(context.exception.args[0]).contains("some_property_02")
 
     def test_object_mapper_value_converters_when_converter_not_callable_should_raise_exception(self):
         with self.assertRaises(ValueError) as context:
             ObjectMapper.from_class(TestClassSomePropertyEmptyInit1, TestClassSomePropertyEmptyInit2).value_converters(
                 {"some_property_02": (lambda val: 7, "not_a_function")})
 
-        assert_that(context.exception.message).contains("some_property_02")
+        assert_that(context.exception.args[0]).contains("some_property_02")
 
     def test_object_mapper_map_with_value_converter_and_default_mapping(self):
         # given

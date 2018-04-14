@@ -1,3 +1,4 @@
+import collections
 from datetime import datetime
 from enum import Enum
 
@@ -6,6 +7,12 @@ from mapperpy.mapper_options import MapperOptions
 from mapperpy.exceptions import ConfigurationException
 
 __author__ = 'lgrech'
+
+
+try:
+      basestring
+except NameError:
+      basestring = str
 
 
 class OneWayMapper(object):
@@ -87,7 +94,8 @@ class OneWayMapper(object):
         self.__target_value_converters.update(converters_dict)
         return self
 
-    def options(self, (setting_name, setting_value)):
+    def options(self, settings):
+        (setting_name, setting_value) = settings
         self.__general_settings[setting_name] = setting_value
         return self
 
@@ -100,7 +108,7 @@ class OneWayMapper(object):
             return self.__target_class(**param_dict)
         except TypeError as er:
             raise AttributeError("Error when initializing class {} with params: {}\n{}".format(
-                self.__target_class.__name__, param_dict, er.message))
+                self.__target_class.__name__, param_dict, er.args[0]))
 
     def __get_mapped_params_dict(self, obj_from):
 
@@ -111,12 +119,12 @@ class OneWayMapper(object):
             mapped_params_dict.update(self.__apply_initializers(obj_from))
             return mapped_params_dict
         except AttributeError as er:
-            raise AttributeError("Unknown attribute: {}".format(er.message))
+            raise AttributeError("Unknown attribute: {}".format(er.args[0]))
 
     def __apply_initializers(self, source_obj):
         initialized_params_dict = {}
 
-        for attr_name, init_func in self.__target_initializers.items():
+        for attr_name, init_func in list(self.__target_initializers.items()):
             initialized_params_dict[attr_name] = init_func(source_obj)
 
         return initialized_params_dict
@@ -125,7 +133,7 @@ class OneWayMapper(object):
 
         mapped_params_dict = {}
 
-        for attr_name_from, attr_name_to in attr_name_mapping.items():
+        for attr_name_from, attr_name_to in list(attr_name_mapping.items()):
             # skip since mapping is suppressed by user (attribute_name = None)
             if not (attr_name_from and attr_name_to):
                 continue
@@ -177,7 +185,7 @@ class OneWayMapper(object):
             return cls.__get_conversion_from_enum(attr_value, to_type)
         elif issubclass(to_type, Enum):
             return cls.__get_conversion_to_enum(attr_value, from_type, to_type)
-        elif issubclass(from_type, datetime) and issubclass(to_type, basestring):
+        elif issubclass(from_type, datetime) and issubclass(to_type, str):
             return cls.__get_conversion_from_datetime(attr_value)
         elif issubclass(from_type, basestring) and issubclass(to_type, datetime):
             return cls.__get_conversion_to_datetime(attr_value)
@@ -192,7 +200,7 @@ class OneWayMapper(object):
                 return datetime.strptime(attr_value, "%Y-%m-%dT%H:%M:%S")
             except ValueError as e2:
                 raise ValueError("Could not create datetime object from string: {}. {}. {}".format(
-                    attr_value, e1.message, e2.message))
+                    attr_value, e1.args[0], e2.args[0]))
 
     @classmethod
     def __get_conversion_from_datetime(cls, attr_value):
@@ -270,8 +278,8 @@ class OneWayMapper(object):
 
     @staticmethod
     def __verify_if_callable(name_callable_map, error_message_template):
-        for name, obj in name_callable_map.iteritems():
-            if not callable(obj):
+        for name, obj in name_callable_map.items():
+            if not isinstance(obj, collections.Callable):
                 raise ValueError(error_message_template.format(name))
 
     def __repr__(self):
