@@ -1,3 +1,4 @@
+import sys
 import unittest
 from assertpy import assert_that
 
@@ -7,6 +8,10 @@ from mapperpy import OneWayMapper, ObjectMapper
 from datetime import datetime
 
 __author__ = 'lgrech'
+
+
+if sys.version_info > (3, 0):
+    unicode = str
 
 
 class DateTimeConversionTest(unittest.TestCase):
@@ -50,7 +55,7 @@ class DateTimeConversionTest(unittest.TestCase):
             mapper.map(TestClassSomePropertyEmptyInit1(some_property_02="wrong_date_format"))
 
         # then
-        assert_that(context.exception.message).contains("wrong_date_format")
+        assert_that(context.exception.args[0]).contains("wrong_date_format")
 
     def test_map_from_string_to_datetime(self):
         # given

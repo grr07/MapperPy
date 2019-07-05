@@ -1,3 +1,4 @@
+import sys
 import unittest
 from assertpy import assert_that
 from enum import Enum
@@ -7,6 +8,10 @@ from mapperpy.test.common_test_classes import *
 from mapperpy import ObjectMapper, OneWayMapper
 
 __author__ = 'lgrech'
+
+
+if sys.version_info > (3, 0):
+    unicode = str
 
 
 class EnumConversionTest(unittest.TestCase):

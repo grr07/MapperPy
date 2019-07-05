@@ -4,7 +4,7 @@ import inspect
 def get_attributes(obj):
 
     if isinstance(obj, dict):
-        return obj.keys()
+        return list(obj.keys())
 
     attributes = inspect.getmembers(obj, lambda a: not(inspect.isroutine(a)))
     return [attr[0] for attr in attributes if not(attr[0].startswith('__') and attr[0].endswith('__'))]

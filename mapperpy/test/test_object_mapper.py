@@ -22,7 +22,7 @@ class ObjectMapperTest(unittest.TestCase):
             ObjectMapper.from_class(TestEmptyClass1, TestEmptyClass2).map(TestOtherClass())
             self.fail("Should raise ValueError")
         except ValueError as er:
-            assert_that(er.message).contains(TestOtherClass.__name__)
+            assert_that(er.args[0]).contains(TestOtherClass.__name__)
 
     def test_map_one_explicit_property(self):
         # given
@@ -54,7 +54,7 @@ class ObjectMapperTest(unittest.TestCase):
             self.fail("Should raise AttributeError")
         except AttributeError as er:
             # then
-            assert_that(er.message).contains("unknown")
+            assert_that(er.args[0]).contains("unknown")
 
         # given
         mapper = ObjectMapper.from_class(TestClassSomeProperty1, TestClassMappedProperty).custom_mappings(
@@ -66,7 +66,7 @@ class ObjectMapperTest(unittest.TestCase):
             self.fail("Should raise AttributeError")
         except AttributeError as er:
             # then
-            assert_that(er.message).contains("unknown")
+            assert_that(er.args[0]).contains("unknown")
 
     def test_map_multiple_explicit_properties(self):
         # given
@@ -211,8 +211,8 @@ class ObjectMapperTest(unittest.TestCase):
             root_mapper.nested_mapper(object())
 
         # then
-        assert_that(context.exception.message).contains(ObjectMapper.__name__)
-        assert_that(context.exception.message).contains("object")
+        assert_that(context.exception.args[0]).contains(ObjectMapper.__name__)
+        assert_that(context.exception.args[0]).contains("object")
 
     def test_nested_mapper_when_the_same_mapper_added_should_raise_exception(self):
         # given
@@ -226,8 +226,8 @@ class ObjectMapperTest(unittest.TestCase):
                 ObjectMapper.from_class(TestClassSomePropertyEmptyInit1, TestClassSomePropertyEmptyInit2))
 
         # then
-        assert_that(context.exception.message).contains(TestClassSomePropertyEmptyInit1.__name__)
-        assert_that(context.exception.message).contains(TestClassSomePropertyEmptyInit2.__name__)
+        assert_that(context.exception.args[0]).contains(TestClassSomePropertyEmptyInit1.__name__)
+        assert_that(context.exception.args[0]).contains(TestClassSomePropertyEmptyInit2.__name__)
 
     def test_map_with_nested_explicit_mapper(self):
         # given
@@ -297,8 +297,8 @@ class ObjectMapperTest(unittest.TestCase):
             root_mapper.map(TestClassSomeProperty1(some_property=TestClassSomePropertyEmptyInit1()))
 
         # then
-        assert_that(context.exception.message).contains("some_property")
-        assert_that(context.exception.message).contains("TestClassSomePropertyEmptyInit1")
+        assert_that(context.exception.args[0]).contains("some_property")
+        assert_that(context.exception.args[0]).contains("TestClassSomePropertyEmptyInit1")
 
     def test_map_explicit_when_ambiguous_nested_mapping_should_raise_exception(self):
         # given
@@ -314,9 +314,9 @@ class ObjectMapperTest(unittest.TestCase):
             root_mapper.map(TestClassSomeProperty1(some_property=TestClassSomePropertyEmptyInit1()))
 
         # then
-        assert_that(context.exception.message).contains("some_property")
-        assert_that(context.exception.message).contains("mapped_property")
-        assert_that(context.exception.message).contains("TestClassSomePropertyEmptyInit1")
+        assert_that(context.exception.args[0]).contains("some_property")
+        assert_that(context.exception.args[0]).contains("mapped_property")
+        assert_that(context.exception.args[0]).contains("TestClassSomePropertyEmptyInit1")
 
     def test_map_with_reversed_nested_mapper_should_not_use_nested_mapper(self):
         # given
@@ -424,7 +424,7 @@ class ObjectMapperTest(unittest.TestCase):
             mapper_strict.map(TestEmptyClass1())
             self.fail("Should raise AttributeError")
         except AttributeError as er:
-            assert_that(er.message).contains("non_existing_property")
+            assert_that(er.args[0]).contains("non_existing_property")
 
     def test_map_attr_name_for_empty_classes_should_raise_exception(self):
         # given
@@ -435,7 +435,7 @@ class ObjectMapperTest(unittest.TestCase):
             mapper.map_attr_name("unmapped_property")
 
         # then
-        assert_that(context.exception.message).contains("unmapped_property")
+        assert_that(context.exception.args[0]).contains("unmapped_property")
 
     def test_map_attr_name_for_unmapped_explicit_property_should_raise_exception(self):
         # given
@@ -447,7 +447,7 @@ class ObjectMapperTest(unittest.TestCase):
             mapper.map_attr_name("unmapped_property")
 
         # then
-        assert_that(context.exception.message).contains("unmapped_property")
+        assert_that(context.exception.args[0]).contains("unmapped_property")
 
     def test_map_attr_name_for_explicit_mapping(self):
         # given
@@ -474,14 +474,14 @@ class ObjectMapperTest(unittest.TestCase):
             mapper.map_attr_name("unmapped_property1")
 
         # then
-        assert_that(context.exception.message).contains("unmapped_property1")
+        assert_that(context.exception.args[0]).contains("unmapped_property1")
 
         # when
         with self.assertRaises(ValueError) as context:
             mapper.map_attr_name("unmapped_property2")
 
         # then
-        assert_that(context.exception.message).contains("unmapped_property2")
+        assert_that(context.exception.args[0]).contains("unmapped_property2")
 
     def test_map_attr_value_when_attr_name_unknown_should_raise_exception(self):
         # when
@@ -490,7 +490,7 @@ class ObjectMapperTest(unittest.TestCase):
                 map_attr_value("unknown_property", "some_value", MappingDirection.left_to_right)
 
         # then
-        assert_that(context.exception.message).contains("unknown_property")
+        assert_that(context.exception.args[0]).contains("unknown_property")
 
     def test_map_attr_value_when_attr_name_unknown_should_raise_exception_rev(self):
         # when
@@ -499,7 +499,7 @@ class ObjectMapperTest(unittest.TestCase):
                 map_attr_value("unknown_property", "some_value", MappingDirection.right_to_left)
 
         # then
-        assert_that(context.exception.message).contains("unknown_property")
+        assert_that(context.exception.args[0]).contains("unknown_property")
 
     def test_map_attr_value_when_opposite_direction_should_raise_exception(self):
         # when
@@ -509,8 +509,8 @@ class ObjectMapperTest(unittest.TestCase):
                 map_attr_value("some_property_02", "some_value", MappingDirection.right_to_left)
 
         # then
-        assert_that(context.exception.message).contains("some_property_02")
-        assert_that(context.exception.message).contains("right_to_left")
+        assert_that(context.exception.args[0]).contains("some_property_02")
+        assert_that(context.exception.args[0]).contains("right_to_left")
 
     def test_map_attr_value_when_opposite_direction_should_raise_exception_rev(self):
         # when
@@ -520,8 +520,8 @@ class ObjectMapperTest(unittest.TestCase):
                 map_attr_value("mapped_property_02", "some_value", MappingDirection.left_to_right)
 
         # then
-        assert_that(context.exception.message).contains("mapped_property_02")
-        assert_that(context.exception.message).contains("left_to_right")
+        assert_that(context.exception.args[0]).contains("mapped_property_02")
+        assert_that(context.exception.args[0]).contains("left_to_right")
 
     def test_map_attr_value(self):
         # when
@@ -559,8 +559,8 @@ class ObjectMapperTest(unittest.TestCase):
                 map_attr_value("some_property_02", "some_value", target_class=TestClassSomePropertyEmptyInit1)
 
         # then
-        assert_that(context.exception.message).contains("some_property_02")
-        assert_that(context.exception.message).contains("TestClassSomePropertyEmptyInit1")
+        assert_that(context.exception.args[0]).contains("some_property_02")
+        assert_that(context.exception.args[0]).contains("TestClassSomePropertyEmptyInit1")
 
     def test_map_attr_value_when_opposite_direction_for_class_should_raise_exception_rev(self):
         # when
@@ -570,8 +570,8 @@ class ObjectMapperTest(unittest.TestCase):
                 map_attr_value("mapped_property_02", "some_value", target_class=TestClassMappedPropertyEmptyInit)
 
         # then
-        assert_that(context.exception.message).contains("mapped_property_02")
-        assert_that(context.exception.message).contains("TestClassMappedPropertyEmptyInit")
+        assert_that(context.exception.args[0]).contains("mapped_property_02")
+        assert_that(context.exception.args[0]).contains("TestClassMappedPropertyEmptyInit")
 
     def test_map_attr_value_for_target_class(self):
         # when
